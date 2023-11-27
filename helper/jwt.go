@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -17,6 +18,7 @@ func GenerateToken(id uint,email string) string {
 		jwt.MapClaims{
 			"id"	: id,
 			"email"	: email,
+			"exp"	: time.Now().Add(time.Minute * 1).Unix(),
 		})
 
 	signedToken, _ := parseToken.SignedString([]byte(secretKey))
@@ -41,8 +43,16 @@ func VerifyToken(c *gin.Context) (interface{}, error)  {
 		return []byte(secretKey), nil
 	})
 
-	if _, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid{
+	claim, ok := token.Claims.(jwt.MapClaims);
+
+	if  !ok && !token.Valid{
 		return nil, errResponse
 	}
+
+	expirationTime := time.Unix(int64(claim["exp"].(float64)), 0)
+	if time.Now().After(expirationTime) {
+		return nil, errors.New("token expired")
+	}
+
 	return token.Claims.(jwt.MapClaims), nil
 }

@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+    postgres:
+        image: postgres:latest
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: yourpassword
+            POSTGRES_DB: todolist
+        ports:
+            - "5432:5432"
+
+    web:
+        build:
+            context: .
+        ports:
+            - "8080:8080"
+        depends_on:
+            - postgres
+        environment:
+            DATABASE_URL: "postgres://postgres:yourpassword@postgres:5432/todolist"
+        env_file:
+            - .env

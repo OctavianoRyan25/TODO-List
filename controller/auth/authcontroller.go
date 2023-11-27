@@ -91,7 +91,6 @@ func UserLogin(ctx *gin.Context)  {
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"status"	: "Login succesfully",
-		"id"		: User.ID,
 		"token"		: token,
 	})
 }
